@@ -7,7 +7,10 @@ class Main {
 
     ArrayList< HashMap< ArrayList<String>, Integer > > store = new ArrayList< HashMap< ArrayList<String>, Integer> >();
 
+    HashMap< ArrayList<String>, ArrayList<String>> selectedAssociations = new HashMap<ArrayList<String>, ArrayList<String>>();
+
     int support = 2000; /*Min support count*/
+    double confidence = 0.9; /*Min confidence count*/
 
     void run() {
         getInput("data/chess.dat");
@@ -20,7 +23,8 @@ class Main {
             }
             lNumber++;
         }
-        //createAssociations();
+        createAssociations(lNumber);
+        System.out.println(selectedAssociations);
     }
     
     void generateL1() {
@@ -76,6 +80,22 @@ class Main {
         return isEmpty;
     }
 
+    void createAssociations(int lNumber) {
+        for (ArrayList<String> currentSet : store.get(lNumber - 2).keySet()) {
+            ArrayList<ArrayList<String>> allSubsets = createAllSubsets(currentSet);
+            for (int i = 0; i < allSubsets.size(); i++) {
+                ArrayList<String> currentSubset = allSubsets.get(i);
+                ArrayList<String> difference = getDifference(currentSet, currentSubset);
+                double currConfidence = (double)getSupport(currentSet) / getSupport(currentSubset);
+                System.out.print(currentSubset + " " + difference);
+                System.out.println(" -> " + getSupport(currentSet) + " / " + getSupport(currentSubset) + " = " + currConfidence);
+                if (currConfidence >= confidence) {
+                    selectedAssociations.put(currentSubset, difference);
+                }
+            }
+        }
+    }
+
     boolean isApriori(ArrayList<String> itemset, HashMap<ArrayList<String>, Integer> previous) {
         ArrayList<ArrayList<String>> subsets = createSubsets(itemset);
 
@@ -104,6 +124,11 @@ class Main {
             frequency += minimum;
         }
         return frequency;
+    }
+
+    int getSupport(ArrayList<String> set) {
+        int length = set.size();
+        return store.get(length - 1).get(set);
     }
 
     boolean isCompitable(ArrayList<String> first, ArrayList<String> second) {
@@ -140,6 +165,32 @@ class Main {
         return subsets;
     }
 
+    ArrayList<ArrayList<String>> createAllSubsets(ArrayList<String> set) {
+        ArrayList<ArrayList<String>> allSubsets = new ArrayList<ArrayList<String>>();
+        int maxSize = (int)Math.pow(2, set.size());
+
+        for (int i = 1; i < maxSize - 1; i++) {
+            ArrayList<String> current = new ArrayList<String>();
+            for (int j = 0; j < set.size(); j++) {
+                if ((i & (1 << j)) != 0) {
+                    current.add(set.get(j));
+                }
+            }
+            allSubsets.add(current);
+        }
+        return allSubsets;
+    }
+
+    ArrayList<String> getDifference(ArrayList<String> first, ArrayList<String> second) {
+        ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < first.size(); i++) {
+            String element = first.get(i);
+            if (second.indexOf(element) == -1) {
+                result.add(element);
+            }
+        }
+        return result;
+    }
 
     void fillDatabase(String input) {
         String[] split = input.split(" ");
