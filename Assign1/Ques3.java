@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-class Main {
+class Ques3 {
 
     ArrayList< HashMap<String, Integer> > database = new ArrayList< HashMap<String, Integer> >();
 
@@ -9,11 +9,18 @@ class Main {
 
     HashMap< ArrayList<String>, ArrayList<String>> selectedAssociations = new HashMap<ArrayList<String>, ArrayList<String>>();
 
-    int support = 2000; /*Min support count*/
+    double supportPercent = 0.4;
+
+    int support; /*Min support count*/
     double confidence = 0.9; /*Min confidence count*/
 
+    int maxItems = 0;
+    int totalTransactions = 0;
+
     void run() {
-        getInput("data/chess.dat");
+        getInput("data/FILE1.txt");
+        support = (int)(totalTransactions * supportPercent);
+        //System.out.println(database);
         generateL1();
         int lNumber = 2;
         while (true) {
@@ -24,13 +31,13 @@ class Main {
             lNumber++;
         }
         createAssociations(lNumber);
-        System.out.println(selectedAssociations);
+        displayAssociations();
     }
     
     void generateL1() {
         HashMap< ArrayList<String>, Integer> l1 = new HashMap< ArrayList<String>, Integer>();
         /*Not for general cases*/
-        for (int i = 1; i <= 75; i++) {
+        for (int i = 0; i <= maxItems; i++) {
             int count = 0;
             String item = "" + i;
             
@@ -93,6 +100,14 @@ class Main {
                     selectedAssociations.put(currentSubset, difference);
                 }
             }
+        }
+    }
+
+    void displayAssociations() {
+        System.out.println("");
+        System.out.println("Support: " + supportPercent + " Confidence: " + confidence);
+        for (ArrayList<String> key : selectedAssociations.keySet()) {
+            System.out.println(key + " -> " + selectedAssociations.get(key));
         }
     }
 
@@ -193,14 +208,19 @@ class Main {
     }
 
     void fillDatabase(String input) {
-        String[] split = input.split(" ");
+        String[] split = input.split(",");
         HashMap<String, Integer> hm = new HashMap<String, Integer>();
-        for (String item : split) {
-            if (hm.get(item) == null) {
-                hm.put(item, 1);
-            } else {
-                hm.put(item, hm.get(item) + 1);
+        int currentItem = 0;
+        for (String isPresent : split) {
+            String item = "" + currentItem;
+            if (isPresent.equals("1")) {
+                if (hm.get(item) == null) {
+                    hm.put(item, 1);
+                } else {
+                    hm.put(item, hm.get(item) + 1);
+                }
             }
+            currentItem++;
         }
         database.add(hm);
     }
@@ -209,7 +229,10 @@ class Main {
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));
             String input;
+            maxItems = Integer.parseInt(br.readLine());
+            br.readLine();
             while ((input = br.readLine()) != null) {
+                totalTransactions++;
                 fillDatabase(input);
             }
         } catch (Exception ex) {
@@ -218,6 +241,6 @@ class Main {
     }
 
     public static void main(String[] args) {
-        new Main().run();
+        new Ques3().run();
     }
 }
