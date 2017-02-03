@@ -9,38 +9,48 @@ class Ques3 {
 
     HashMap< ArrayList<String>, ArrayList<String>> selectedAssociations = new HashMap<ArrayList<String>, ArrayList<String>>();
 
-    double supportPercent = 0.4;
+    double supportPercent = 0.1;
 
     int support; /*Min support count*/
-    double confidence = 0.9; /*Min confidence count*/
+    double confidence = 0.1; /*Min confidence count*/
 
     int maxItems = 0;
     int totalTransactions = 0;
 
     void run() {
         getInput("data/FILE1.txt");
-        support = (int)(totalTransactions * supportPercent);
-        //System.out.println(database);
-        generateL1();
-        int lNumber = 2;
-        while (true) {
-            boolean isEmpty = generateL(lNumber);
-            if (isEmpty == true) {
-                break;
+        while (supportPercent <= 0.8) {
+            confidence = 0.1;
+            while (confidence <= 0.6) {
+                store.clear();
+                selectedAssociations.clear();
+                System.out.println("");
+                support = (int)(totalTransactions * supportPercent);
+                //System.out.println(database);
+                generateL1();
+                int lNumber = 2;
+                while (true) {
+                    boolean isEmpty = generateL(lNumber);
+                    if (isEmpty == true) {
+                        break;
+                    }
+                    lNumber++;
+                }
+                createAssociations(lNumber);
+                displayAssociations();
+                confidence += 0.1;
             }
-            lNumber++;
+            supportPercent += 0.1;
         }
-        createAssociations(lNumber);
-        displayAssociations();
     }
-    
+
     void generateL1() {
         HashMap< ArrayList<String>, Integer> l1 = new HashMap< ArrayList<String>, Integer>();
         /*Not for general cases*/
         for (int i = 0; i <= maxItems; i++) {
             int count = 0;
             String item = "" + i;
-            
+
             ArrayList<String> itemset = new ArrayList<String>();
             itemset.add(item);
 
@@ -104,7 +114,7 @@ class Ques3 {
     }
 
     void displayAssociations() {
-        System.out.println("");
+        //System.out.println("");
         System.out.println("Support: " + supportPercent + " Confidence: " + confidence);
         for (ArrayList<String> key : selectedAssociations.keySet()) {
             System.out.println(key + " -> " + selectedAssociations.get(key));
@@ -129,9 +139,9 @@ class Ques3 {
             int minimum = 10000;
             for (String item : itemset) {
                 if (transaction.get(item) != null) {
-                   if (transaction.get(item) < minimum) {
-                       minimum = transaction.get(item);
-                   }
+                    if (transaction.get(item) < minimum) {
+                        minimum = transaction.get(item);
+                    }
                 } else {
                     minimum = 0;
                 }

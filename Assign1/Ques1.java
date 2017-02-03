@@ -9,7 +9,7 @@ class Ques1 {
 
     HashMap< ArrayList<String>, ArrayList<String>> selectedAssociations = new HashMap<ArrayList<String>, ArrayList<String>>();
 
-    double supportPercent = 0.9;
+    double supportPercent = 0.8;
 
     int support; /*Min support count*/
     double confidence = 0.9; /*Min confidence count*/
