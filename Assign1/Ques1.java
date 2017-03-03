@@ -5,9 +5,9 @@ class Ques1 {
 
     ArrayList< HashMap<String, Integer> > database = new ArrayList< HashMap<String, Integer> >();
 
-    ArrayList< HashMap< ArrayList<String>, Integer > > store = new ArrayList< HashMap< ArrayList<String>, Integer> >();
+    ArrayList< HashMap< Set<String>, Integer > > store = new ArrayList< HashMap< Set<String>, Integer> >();
 
-    HashMap< ArrayList<String>, ArrayList<String>> selectedAssociations = new HashMap<ArrayList<String>, ArrayList<String>>();
+    HashMap< Set<String>, Set<String>> selectedAssociations = new HashMap<Set<String>, Set<String>>();
 
     double supportPercent = 0.8;
 
@@ -34,13 +34,13 @@ class Ques1 {
     }
     
     void generateL1() {
-        HashMap< ArrayList<String>, Integer> l1 = new HashMap< ArrayList<String>, Integer>();
+        HashMap< Set<String>, Integer> l1 = new HashMap< Set<String>, Integer>();
         /*Not for general cases*/
         for (int i = 1; i <= maxItems; i++) {
             int count = 0;
             String item = "" + i;
             
-            ArrayList<String> itemset = new ArrayList<String>();
+            Set<String> itemset = new TreeSet<String>(new Comp());
             itemset.add(item);
 
             count += getFrequency(itemset);
@@ -55,18 +55,18 @@ class Ques1 {
 
     boolean generateL(int lNumber) {
         boolean isEmpty = true;
-        HashMap<ArrayList<String>, Integer> current = new HashMap<ArrayList<String>, Integer>();
-        HashMap< ArrayList<String>, Integer> previous = store.get(lNumber - 2);
+        HashMap<Set<String>, Integer> current = new HashMap<Set<String>, Integer>();
+        HashMap< Set<String>, Integer> previous = store.get(lNumber - 2);
 
-        ArrayList< ArrayList<String>> entryArr = new ArrayList<ArrayList<String>>(previous.keySet());
+        ArrayList< Set<String>> entryArr = new ArrayList<Set<String>>(previous.keySet());
 
         for (int i = 0; i < entryArr.size(); i++) {
             for (int j = i + 1; j < entryArr.size(); j++) {
-                ArrayList<String> first = entryArr.get(i);
-                ArrayList<String> second = entryArr.get(j);
+                Set<String> first = entryArr.get(i);
+                Set<String> second = entryArr.get(j);
 
                 if (isCompitable(first, second)) {
-                    ArrayList<String> joined = join(first, second);
+                    Set<String> joined = join(first, second);
 
                     if (isApriori(joined, previous)) {
 
@@ -87,11 +87,11 @@ class Ques1 {
     }
 
     void createAssociations(int lNumber) {
-        for (ArrayList<String> currentSet : store.get(lNumber - 2).keySet()) {
-            ArrayList<ArrayList<String>> allSubsets = createAllSubsets(currentSet);
+        for (Set<String> currentSet : store.get(lNumber - 2).keySet()) {
+            ArrayList<Set<String>> allSubsets = createAllSubsets(currentSet);
             for (int i = 0; i < allSubsets.size(); i++) {
-                ArrayList<String> currentSubset = allSubsets.get(i);
-                ArrayList<String> difference = getDifference(currentSet, currentSubset);
+                Set<String> currentSubset = allSubsets.get(i);
+                Set<String> difference = getDifference(currentSet, currentSubset);
                 double currConfidence = (double)getSupport(currentSet) / getSupport(currentSubset);
                 System.out.print(currentSubset + " " + difference);
                 System.out.println(" -> " + getSupport(currentSet) + " / " + getSupport(currentSubset) + " = " + currConfidence);
@@ -105,16 +105,16 @@ class Ques1 {
     void displayAssociations() {
         System.out.println("");
         System.out.println("Support: " + supportPercent + " Confidence: " + confidence);
-        for (ArrayList<String> key : selectedAssociations.keySet()) {
+        for (Set<String> key : selectedAssociations.keySet()) {
             System.out.println(key + " -> " + selectedAssociations.get(key));
         }
     }
 
-    boolean isApriori(ArrayList<String> itemset, HashMap<ArrayList<String>, Integer> previous) {
-        ArrayList<ArrayList<String>> subsets = createSubsets(itemset);
+    boolean isApriori(Set<String> itemset, HashMap<Set<String>, Integer> previous) {
+        ArrayList<Set<String>> subsets = createSubsets(itemset);
 
         for (int i = 0; i < subsets.size(); i++) {
-            ArrayList<String> currentSubset = subsets.get(i);
+            Set<String> currentSubset = subsets.get(i);
             if (previous.get(currentSubset) == null) {
                 return false;
             }
@@ -122,7 +122,7 @@ class Ques1 {
         return true;
     }
 
-    int getFrequency(ArrayList<String> itemset) {
+    int getFrequency(Set<String> itemset) {
         int frequency = 0;
         for (HashMap<String, Integer> transaction : database) {
             int minimum = 10000;
@@ -140,54 +140,54 @@ class Ques1 {
         return frequency;
     }
 
-    int getSupport(ArrayList<String> set) {
+    int getSupport(Set<String> set) {
         int length = set.size();
         return store.get(length - 1).get(set);
     }
 
-    boolean isCompitable(ArrayList<String> first, ArrayList<String> second) {
+    boolean isCompitable(Set<String> first, Set<String> second) {
         for (int i = 0; i < first.size() - 1; i++) {
-            if (!first.get(i).equals(second.get(i))) {
+            if (!get(first, i).equals(get(second, i))) {
                 return false;
             }
         }
         return true;
     }
 
-    ArrayList<String> join(ArrayList<String> first, ArrayList<String> second) {
-        ArrayList<String> result = new ArrayList<String>();
+    Set<String> join(Set<String> first, Set<String> second) {
+        Set<String> result = new TreeSet<String>(new Comp());
         for (int i = 0; i < first.size() - 1; i++) {
-            result.add(first.get(i));
+            result.add(get(first, i));
         }
-        result.add(first.get(first.size() - 1));
-        result.add(second.get(second.size() - 1));
+        result.add(get(first, (first.size() - 1)));
+        result.add(get(second, (second.size() - 1)));
         return result;
     }
 
-    ArrayList<ArrayList<String>> createSubsets(ArrayList<String> set) {
-        ArrayList<ArrayList<String>> subsets = new ArrayList<ArrayList<String>>();
+    ArrayList<Set<String>> createSubsets(Set<String> set) {
+        ArrayList<Set<String>> subsets = new ArrayList<Set<String>>();
         for (int i = 0; i < set.size(); i++) {
-            ArrayList<String> currentSubset = new ArrayList<String>();
+            Set<String> currentSubset = new TreeSet<String>(new Comp());
             for (int j = 0; j < set.size(); j++) {
                 if (j == i) {
                     continue;
                 }
-                currentSubset.add(set.get(j));
+                currentSubset.add(get(set, j));
             }
             subsets.add(currentSubset);
         }
         return subsets;
     }
 
-    ArrayList<ArrayList<String>> createAllSubsets(ArrayList<String> set) {
-        ArrayList<ArrayList<String>> allSubsets = new ArrayList<ArrayList<String>>();
+    ArrayList<Set<String>> createAllSubsets(Set<String> set) {
+        ArrayList<Set<String>> allSubsets = new ArrayList<Set<String>>();
         int maxSize = (int)Math.pow(2, set.size());
 
         for (int i = 1; i < maxSize - 1; i++) {
-            ArrayList<String> current = new ArrayList<String>();
+            Set<String> current = new TreeSet<String>(new Comp());
             for (int j = 0; j < set.size(); j++) {
                 if ((i & (1 << j)) != 0) {
-                    current.add(set.get(j));
+                    current.add(get(set, j));
                 }
             }
             allSubsets.add(current);
@@ -195,15 +195,26 @@ class Ques1 {
         return allSubsets;
     }
 
-    ArrayList<String> getDifference(ArrayList<String> first, ArrayList<String> second) {
-        ArrayList<String> result = new ArrayList<String>();
+    Set<String> getDifference(Set<String> first, Set<String> second) {
+        Set<String> result = new TreeSet<String>(new Comp());
         for (int i = 0; i < first.size(); i++) {
-            String element = first.get(i);
-            if (second.indexOf(element) == -1) {
+            String element = get(first, i);
+            if (!second.contains(element)) {
                 result.add(element);
             }
         }
         return result;
+    }
+
+    String get(Set<String> set, int index) {
+        int count = 0;
+        for (String ans : set) {
+            if (count == index) {
+                return ans;
+            }
+            count++;
+        }
+        return null;
     }
 
     void fillDatabase(String input) {
@@ -231,6 +242,13 @@ class Ques1 {
             ex.printStackTrace();
         }
     }
+
+    private class Comp implements Comparator<String> {
+        public int compare(String a1, String a2) {
+            return Integer.parseInt(a1) - Integer.parseInt(a2);
+        }
+    }
+
 
     public static void main(String[] args) {
         new Ques1().run();
