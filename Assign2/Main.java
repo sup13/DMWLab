@@ -5,28 +5,75 @@ class Main {
 
     ArrayList<ArrayList<String>> database = new ArrayList<ArrayList<String>>();
     HashMap<String, Integer> fList = new HashMap<String, Integer>();
-    Node tree;
+    Node fpTree;
+
+    int minSupp = 2; 
+    /* Todo: Get support from console */
+
+    private ArrayList<Pair<ArrayList<String>,Integer>> patternBase 
+        = new ArrayList<Pair<ArrayList<String>, Integer>>();
 
     void run() {
         getInput("Data.txt");
-        System.out.println(database);
+        //System.out.println(database);
         calculateFrequency();
         System.out.println(fList);
         sortDatabase();
         System.out.println(database);
-        createTree();
+        fpTree = createTree();
+
+        findFrequentItemsets(fpTree);
     }
 
-    void createTree() {
-        tree = new Node("null");
+    Node createTree() {
+        Node tree = new Node("null");
         for (ArrayList<String> transaction : database) {
             Node branch = tree;
             for (String item : transaction) {
                 branch = branch.insertChild(item);
             }
         }
-        //System.out.println("AAAAA");
         tree.print();
+        return tree;
+    }
+
+    void findFrequentItemsets(Node fpTree) {
+        for (String item : fList.keySet()) {
+            System.out.print(item + " -> ");
+            findFrequentItemsets(fpTree, item);
+            Node patternTree = createTree(item);
+        }        
+    }
+
+    Node createTree(String item) {
+        return treeFromPatternBase(item, patternBase);
+    }
+
+    Node treeFromPatternBase(String item, 
+            ArrayList<Pair<ArrayList<String>,Integer>> base) {
+        Node root = new Node("null");
+        return root;
+    }
+
+    void findFrequentItemsets(Node fpTree, String item) {
+        patternBase.clear();
+        ArrayList<String> path = new ArrayList<String>();
+        findPatternBase(fpTree, item, path);
+
+        System.out.println(patternBase);
+    }
+
+    void findPatternBase(Node currNode, String item, ArrayList<String> path) {
+        if (currNode.itemname.equals(item)) {
+            patternBase.add(new Pair<ArrayList<String>,Integer>
+                    ((ArrayList<String>)path.clone(), currNode.count));
+        } else {
+            path.add(currNode.itemname);
+            for (Node child : currNode.children) {
+                findPatternBase(child, item, path);
+            }
+            path.remove(currNode.itemname);
+        }
     }
 
     class Comp implements Comparator<String> {
