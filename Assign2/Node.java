@@ -13,6 +13,11 @@ class Node {
         children = new ArrayList<Node>();
     }
 
+    public Node(String itemname, int counter) {
+        this(itemname);
+        count = counter;
+    }
+
     public Node insertChild(String name) {
         int index = findIndex(name);
         if (index == -1) {

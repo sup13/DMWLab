@@ -10,8 +10,10 @@ class Main {
     int minSupp = 2; 
     /* Todo: Get support from console */
 
-    private ArrayList<Pair<ArrayList<String>,Integer>> patternBase 
-        = new ArrayList<Pair<ArrayList<String>, Integer>>();
+    private ArrayList<ArrayList<String>> patternBase 
+        = new ArrayList<ArrayList<String>>();
+    private ArrayList<Integer> patternBaseCounter
+        = new ArrayList<Integer>();
 
     void run() {
         getInput("Data.txt");
@@ -20,17 +22,29 @@ class Main {
         System.out.println(fList);
         sortDatabase();
         System.out.println(database);
-        fpTree = createTree();
+        fpTree = createTree(database);
 
         findFrequentItemsets(fpTree);
     }
 
-    Node createTree() {
+    Node createTree(ArrayList<ArrayList<String>> data) {
+        ArrayList<Integer> counter = new ArrayList<Integer>();
+        for (int i = 0; i < data.size(); i++) {
+            counter.add(1);
+        }
+        return createTree(data, counter);
+    }
+
+    Node createTree(ArrayList<ArrayList<String>> data, 
+            ArrayList<Integer> counter) {
         Node tree = new Node("null");
-        for (ArrayList<String> transaction : database) {
-            Node branch = tree;
-            for (String item : transaction) {
-                branch = branch.insertChild(item);
+        for (int i = 0; i < data.size(); i++) {
+            ArrayList<String> transaction = data.get(i);
+            for (int j = 0; j < counter.get(i); j++) {
+                Node branch = tree;
+                for (String item : transaction) {
+                    branch = branch.insertChild(item);
+                }
             }
         }
         tree.print();
@@ -41,22 +55,14 @@ class Main {
         for (String item : fList.keySet()) {
             System.out.print(item + " -> ");
             findFrequentItemsets(fpTree, item);
-            Node patternTree = createTree(item);
+
+            Node patternTree = createTree(patternBase, patternBaseCounter);
         }        
-    }
-
-    Node createTree(String item) {
-        return treeFromPatternBase(item, patternBase);
-    }
-
-    Node treeFromPatternBase(String item, 
-            ArrayList<Pair<ArrayList<String>,Integer>> base) {
-        Node root = new Node("null");
-        return root;
     }
 
     void findFrequentItemsets(Node fpTree, String item) {
         patternBase.clear();
+        patternBaseCounter.clear();
         ArrayList<String> path = new ArrayList<String>();
         findPatternBase(fpTree, item, path);
 
@@ -65,14 +71,25 @@ class Main {
 
     void findPatternBase(Node currNode, String item, ArrayList<String> path) {
         if (currNode.itemname.equals(item)) {
-            patternBase.add(new Pair<ArrayList<String>,Integer>
-                    ((ArrayList<String>)path.clone(), currNode.count));
+            ArrayList<String> currPath = new ArrayList<String>(path);
+            patternBase.add(removeNull(currPath));
+            patternBaseCounter.add(currNode.count);
         } else {
             path.add(currNode.itemname);
             for (Node child : currNode.children) {
                 findPatternBase(child, item, path);
             }
             path.remove(currNode.itemname);
+        }
+    }
+
+    ArrayList<String> removeNull(ArrayList<String> arr) {
+        if (arr.size() <= 1) {
+            return new ArrayList<String>();
+        } else {
+            ArrayList<String> removed = new ArrayList<String>(arr.subList(1,
+                        arr.size()));
+            return removed;
         }
     }
 
