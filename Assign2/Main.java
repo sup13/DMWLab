@@ -15,8 +15,8 @@ class Main {
     private ArrayList<Integer> patternBaseCounter
         = new ArrayList<Integer>();
 
-    ArrayList<ArrayList<String>> frequentItems
-        = new ArrayList<ArrayList<String>>();
+    ArrayList<Pair<ArrayList<String>, Integer>> frequentItems
+        = new ArrayList<Pair<ArrayList<String>, Integer>>();
 
     void run() {
         getInput("Data.txt");
@@ -61,33 +61,31 @@ class Main {
 
             Node patternTree = createTree(patternBase, patternBaseCounter);
             System.out.println("");
-            mine(patternTree);
+            mine(item, patternTree);
         }        
     }
 
-    void mine(Node patternTree) {
+    void mine(String item, Node patternTree) {
         for (Node child : patternTree.children) {
-            ArrayList<String> path = new ArrayList<String>();
-            mine(child, path);
+            ArrayList<Node> path = new ArrayList<Node>();
+            mine(item, child, path);
         }
         System.out.println(frequentItems);
         frequentItems.clear();
     }
 
-    void mine(Node patternTree, ArrayList<String> path) {
+    void mine(String item, Node patternTree, ArrayList<Node> path) {
         if (patternTree.count < minSupp) {
             return;
         }
-        ArrayList<String> current = new ArrayList<String>();
-        current.add(patternTree.itemname);
-        frequentItems.add(current);
-        path.add(patternTree.itemname);
+        addToFrequent(item, patternTree);
+        path.add(patternTree);
         if (path.size() > 1) {
-            ArrayList<String> copyPath = new ArrayList<String>(path);
-            frequentItems.add(copyPath);
+            ArrayList<Node> copyPath = new ArrayList<Node>(path);
+            addToFrequent(item, copyPath);
         }
         for (Node child : patternTree.children) {
-            mine(child, path);
+            mine(item, child, path);
         }
     }
 
@@ -122,6 +120,24 @@ class Main {
                         arr.size()));
             return removed;
         }
+    }
+
+    void addToFrequent(String item, Node node) {
+        ArrayList<String> current = new ArrayList<String>();
+        current.add(node.itemname);
+        current.add(item);
+        frequentItems.add(new Pair<ArrayList<String>, Integer>
+                (current, node.count));
+    }
+
+    void addToFrequent(String item, ArrayList<Node> path) {
+        ArrayList<String> current = new ArrayList<String>();
+        for (Node node : path) {
+            current.add(node.itemname);
+        }
+        current.add(item);
+        frequentItems.add(new Pair<ArrayList<String>, Integer>
+                (current, path.get(path.size()-1).count));
     }
 
     class Comp implements Comparator<String> {
