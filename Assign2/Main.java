@@ -15,19 +15,33 @@ class Main {
     private ArrayList<Integer> patternBaseCounter
         = new ArrayList<Integer>();
 
-    ArrayList<Pair<ArrayList<String>, Integer>> frequentItems
+    private ArrayList<Pair<ArrayList<String>, Integer>> frequentItems
         = new ArrayList<Pair<ArrayList<String>, Integer>>();
 
     void run() {
         getInput("Data.txt");
-        //System.out.println(database);
         calculateFrequency();
-        System.out.println(fList);
-        sortDatabase();
-        System.out.println(database);
-        fpTree = createTree(database);
 
+        sortDatabase();
+
+        fpTree = createTree(database);
         findFrequentItemsets(fpTree);
+
+        display();
+    }
+
+    void display() {
+        System.out.println("ITEMS");
+        System.out.println(fList);
+        System.out.println("");
+
+        System.out.println("TRANSACTIONS");
+        System.out.println(database);
+        System.out.println("");
+
+        System.out.println("FP TREE");
+        fpTree.print();
+        System.out.println("");
     }
 
     Node createTree(ArrayList<ArrayList<String>> data) {
@@ -50,7 +64,6 @@ class Main {
                 }
             }
         }
-        tree.print();
         return tree;
     }
 
@@ -60,18 +73,22 @@ class Main {
             findFrequentItemsets(fpTree, item);
 
             Node patternTree = createTree(patternBase, patternBaseCounter);
-            System.out.println("");
+            patternTree.print();
             mine(item, patternTree);
+            System.out.println("");
         }        
     }
 
-    void mine(String item, Node patternTree) {
+    ArrayList<Pair<ArrayList<String>, Integer>> mine(String item, Node patternTree) {
         for (Node child : patternTree.children) {
             ArrayList<Node> path = new ArrayList<Node>();
             mine(item, child, path);
         }
         System.out.println(frequentItems);
+        ArrayList<Pair<ArrayList<String>, Integer>> copy 
+            = new ArrayList<Pair<ArrayList<String>, Integer>>(frequentItems);
         frequentItems.clear();
+        return copy;
     }
 
     void mine(String item, Node patternTree, ArrayList<Node> path) {
