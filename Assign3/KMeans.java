@@ -33,16 +33,35 @@ class KMeans {
             indices.add(-1);
         }
 
-        /* Todo: assign k random points */
-        clusters.add(new Cluster(data.get(0)));
-        clusters.add(new Cluster(data.get(1)));
-        indices.set(0, 0);
-        indices.set(1, 1);
+        /* Assign k random points */
+        HashMap<Integer,Boolean> taken = new HashMap<Integer,Boolean>();
+        for (int i = 0; i < k; i++) {
+            int newpoint = findRandomPoint(taken);
+            System.out.println("Random point " + i + ": " + newpoint);
 
+            clusters.add(new Cluster(data.get(newpoint)));
+            indices.set(newpoint, i);
+        }
     }
 
+    int findRandomPoint(HashMap<Integer,Boolean> taken) {
+        int num = -1;
+        while (true) {
+            double current = Math.random();
+            if (current == 1) {
+                continue;
+            }
+            num = (int)(current * data.size());
+            if (taken.get(num) != null) {
+                continue;
+            }
+            taken.put(num, true);
+            break;
+        }
+        return num;
+    }
+            
     void performClustering() {
-
         while (true) {
             ArrayList<Pair<Double,Double>> means = calculateMeans(clusters);
 
