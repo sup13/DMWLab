@@ -4,6 +4,10 @@ class Cluster {
 
     ArrayList<Pair<Double,Double>> points;
 
+    public Cluster() {
+        points = new ArrayList<Pair<Double,Double>>();
+    }
+
     public Cluster(Pair<Double,Double> point) {
         points = new ArrayList<Pair<Double,Double>>();
         points.add(point);
