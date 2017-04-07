@@ -23,14 +23,21 @@ class KMeans {
         checkInput();
         printData();
 
-        assignInitial();
-        performClustering();
-        printClusters();
+        for (; k < data.size(); k++) {
+            System.out.println("K = " + k);
+            clusters.clear();
+            assignInitial();
+            performClustering();
+            printClusters();            
+            double avgDist = findAverageDistance(clusters);
+            System.out.println("Average distance: " + findAverageDistance(clusters));
+            System.out.println("");
+        }
     }
 
     void assignInitial() {
         for (int i = 0; i < data.size(); i++) {
-            indices.add(-1);
+            indices.set(i, -1);
         }
 
         /* Assign k random points */
@@ -42,6 +49,51 @@ class KMeans {
             clusters.add(new Cluster(data.get(newpoint)));
             indices.set(newpoint, i);
         }
+    }
+
+    void assignInitialNonRandom() {
+        for (int i = 0; i < data.size(); i++) {
+            indices.set(i, -1);
+        }
+
+        ArrayList<Integer> centers = new ArrayList<Integer>();
+        int randomPoint = findRandomPoint();
+        centers.add(randomPoint);
+        System.out.println("Random point 0" + ": " + randomPoint);
+        clusters.add(new Cluster(data.get(randomPoint)));
+        indices.set(randomPoint, 0);
+
+        for (int i = 1; i < k; i++) {
+            int newpoint = selectNewpoint(centers);
+            System.out.println("Next point " + i + ": " + newpoint);
+            
+            clusters.add(new Cluster(data.get(newpoint)));
+            indices.set(newpoint, i);
+            centers.add(newpoint);
+        }
+    }
+
+    int selectNewpoint(ArrayList<Integer> centers) {
+        double maxDist = 0;
+        int maxPoint = -1;
+        for (int i = 0; i < data.size(); i++) {
+            double currDist = 0;
+            Pair<Double,Double> point = data.get(i);
+            for (Integer index : centers) {
+                Pair<Double,Double> centerPoint = data.get(index);
+                currDist += findDistance(point, centerPoint);
+            }
+            if (currDist > maxDist && (centers.indexOf(i) == -1)) {
+                maxDist = currDist;
+                maxPoint = i;
+            }
+        }
+        return maxPoint;
+    }
+
+    int findRandomPoint() {
+        HashMap<Integer,Boolean> taken = new HashMap<Integer,Boolean>();
+        return findRandomPoint(taken);
     }
 
     int findRandomPoint(HashMap<Integer,Boolean> taken) {
@@ -62,7 +114,9 @@ class KMeans {
     }
             
     void performClustering() {
+        int counter = 0;
         while (true) {
+
             ArrayList<Pair<Double,Double>> means = calculateMeans(clusters);
 
             boolean change = false;
@@ -81,10 +135,24 @@ class KMeans {
                     indices.set(i, newIndex);
                 }
             }
+            counter++;
             if (!change) {
                 break;
+            }        
+        }
+        System.out.println("Iterations: " + counter);
+    }
+
+    double findAverageDistance(ArrayList<Cluster> clusters) {
+        double avgDist = 0;
+        for (Cluster cluster : clusters) {
+            Pair<Double,Double> mean = cluster.calculateMean();
+            for (Pair<Double,Double> point : cluster.points) {
+                double dist = findDistance(mean, point);
+                avgDist += dist * dist;
             }
         }
+        return avgDist;
     }
 
     int findNearest(Pair<Double,Double> point, ArrayList<Pair<Double,Double>> centers) {
@@ -137,6 +205,9 @@ class KMeans {
                 fex.printStackTrace();
                 System.exit(1);
             }
+        }
+        for (int i = 0; i < data.size(); i++) {
+            indices.add(-1);
         }
     }
 
