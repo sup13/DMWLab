@@ -135,7 +135,10 @@ class KMeans {
                     indices.set(i, newIndex);
                 }
             }
+
             counter++;
+            //System.out.println("Iteration #" + counter);
+            //printClusters();
             if (!change) {
                 break;
             }        
