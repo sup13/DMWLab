@@ -14,8 +14,10 @@ class Point {
     }
 
     double findDistance(Point two) {
-        double ans = (this.values.get(0) - two.values.get(0)) * (this.values.get(0) - two.values.get(0));
-        ans += (this.values.get(1) - two.values.get(1)) * (this.values.get(1) - two.values.get(1));
+        double ans = 0;
+        for (int i = 0; i < values.size(); i++) {
+            ans += (this.values.get(i) - two.values.get(i)) * (this.values.get(i) - two.values.get(i));
+        }
         return Math.sqrt(ans);
     }
 
