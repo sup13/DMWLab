@@ -6,8 +6,8 @@ class Dbscan {
     ArrayList<Point> points;
     ArrayList<Cluster> clusters = new ArrayList<Cluster>();
 
-    double maxDist = 2;
-    int minPoints = 3;
+    double maxDist = 4;
+    int minPoints = 6;
 
     public Dbscan() {
         points = null;
@@ -19,10 +19,10 @@ class Dbscan {
 
     void run() {
         checkInput();
-        System.out.println(points);
+        //System.out.println(points);
 
         buildClusters(points);
-        System.out.println(clusters);
+        System.out.println("No of clusters: " + clusters.size());
         printNoise();
 
     }
@@ -82,7 +82,7 @@ class Dbscan {
     void checkInput() {
         if (points == null) {
             try {
-                points = Helper.getPoints(new FileReader("data.txt"));
+                points = Helper.getPoints(new FileReader("input.txt"));
             } catch (FileNotFoundException ex) {
                 ex.printStackTrace();
             }
