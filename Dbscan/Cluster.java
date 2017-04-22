@@ -8,7 +8,12 @@ class Cluster {
     }
 
     public Cluster(Point point) {
-        super();
+        points = new ArrayList<Point>();
         points.add(point);
+    }
+
+    @Override
+    public String toString() {
+        return points.toString();
     }
 }
