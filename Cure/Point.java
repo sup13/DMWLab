@@ -21,6 +21,11 @@ class Point {
         return Math.sqrt(ans);
     }
 
+    double findDistance(ArrayList<Double> two) {
+        Point temp = new Point(two);
+        return findDistance(temp);
+    }
+
     @Override
     public String toString() {
         return values.toString();
